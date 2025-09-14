@@ -1,0 +1,74 @@
+// servicioimagen.proto - Archivo .proto principal 
+syntax = "proto3";
+
+package servicioimagen;
+
+// Servicio para procesamiento distribuido de imágenes
+service ServicioProcesamientoImagen {
+    // Enviar imagen para procesamiento con transformaciones
+    rpc ProcesarImagen(SolicitudImagen) returns (RespuestaImagen);
+    
+    // Verificar estado del nodo
+    rpc VerificarSalud(SolicitudVerificacionSalud) returns (RespuestaVerificacionSalud);
+    
+    // Obtener métricas del nodo
+    rpc ObtenerMetricas(SolicitudMetricas) returns (RespuestaMetricas);
+}
+
+// Mensaje para parámetros de transformación
+message ParametroTransformacion {
+    string nombre = 1;
+    string valor = 2;
+}
+
+// Mensaje para solicitar procesamiento de imagen
+message SolicitudImagen {
+    string id_trabajo = 1;
+    string nombre_imagen = 2;
+    bytes datos_imagen = 3;
+    string formato_imagen = 4;
+    map<string, string> metadatos = 5;
+    repeated string transformaciones = 6;
+    repeated ParametroTransformacion parametros = 7;  // NUEVO: Parámetros para transformaciones
+}
+
+// Respuesta del procesamiento de imagen
+message RespuestaImagen {
+    string id_trabajo = 1;
+    bool exito = 2;
+    string mensaje = 3;
+    bytes datos_imagen_procesada = 4;
+    string ruta_resultado = 5;
+    int64 tiempo_procesamiento_ms = 6;
+}
+
+// Verificación de salud del nodo
+message SolicitudVerificacionSalud {
+    string servicio = 1;
+}
+
+message RespuestaVerificacionSalud {
+    enum EstadoServicio {
+        DESCONOCIDO = 0;
+        FUNCIONANDO = 1;
+        NO_FUNCIONANDO = 2;
+        SERVICIO_DESCONOCIDO = 3;
+    }
+    EstadoServicio estado = 1;
+    string nombre_nodo = 2;
+    int64 tiempo_activo_segundos = 3;
+}
+
+// Métricas de rendimiento del nodo
+message SolicitudMetricas {
+    string id_nodo = 1;
+}
+
+message RespuestaMetricas {
+    string id_nodo = 1;
+    double uso_cpu = 2;
+    double uso_memoria_mb = 3;
+    int32 trabajos_activos = 4;
+    int32 trabajos_completados = 5;
+    int64 tiempo_activo_segundos = 6;
+}
